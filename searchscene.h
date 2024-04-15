@@ -46,6 +46,15 @@ protected:
     bool fixtureIsForegrnd1(b2Fixture* f);
     bool fixtureIsForegrnd2(b2Fixture* f);
 
+    bool contactIsCharVsFG1(b2Contact* contact);
+    bool contactIsCharVsFG2(b2Contact* contact);
+
+    void BeginContact(b2Contact* contact);
+    void EndContact(b2Contact* contact);
+
+    void ParticleBuilder(b2Vec2 worldPoint, float velocityA, float velocityB, float intensity);
+    void GenerateParticles(std::set<b2Contact*> set);
+
 private:
     DigScene* digPtr;
     MuseumScene* museumPtr;

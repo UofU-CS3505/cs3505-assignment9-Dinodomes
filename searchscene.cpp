@@ -57,17 +57,6 @@ SearchScene::SearchScene(PlayerState& player, Scene** currentScene, QObject *par
     painter.setBrush(Qt::white);
 }
 
-#define CHECK_MAT_VS_MAT(mat1, mat2)\
-bool contactIs##mat1##Vs##mat2(b2Contact* contact) {\
-        b2Fixture* fA = contact->GetFixtureA();\
-        b2Fixture* fB = contact->GetFixtureB();\
-        if ( fixtureIs##mat1(fA) && fixtureIs##mat2(fB) )\
-        return true;\
-        if ( fixtureIs##mat1(fB) && fixtureIs##mat2(fA) )\
-        return true;\
-        return false;\
-}
-
 void SearchScene::setupBox2D(){
     characterBody.type = b2_staticBody; //this will be a static body
     characterBody.position.Set(520, 320); //set the starting position
@@ -313,7 +302,7 @@ void SearchScene::checkDigCollision(){
     bonePassed = false;
 }
 
-bool contactIsCharVsFG1(b2Contact* contact) {
+bool SearchScene::contactIsCharVsFG1(b2Contact* contact) {
     b2Fixture* fA = contact->GetFixtureA();
     b2Fixture* fB = contact->GetFixtureB();
     if (fA->GetDensity() == 0.02f && fB->GetDensity() == 0.0f)
@@ -323,7 +312,7 @@ bool contactIsCharVsFG1(b2Contact* contact) {
     return false;
 }
 
-bool contactIsCharVsFG2(b2Contact* contact) {
+bool SearchScene::contactIsCharVsFG2(b2Contact* contact) {
     b2Fixture* fA = contact->GetFixtureA();
     b2Fixture* fB = contact->GetFixtureB();
     if (fA->GetDensity() == 0.02f && fB->GetDensity() == 0.01f)
@@ -333,19 +322,56 @@ bool contactIsCharVsFG2(b2Contact* contact) {
     return false;
 }
 
-void BeginContact(b2Contact* contact){
-    if (contactIsCharVsFG1(contact)){}
-        // charToFG1Contacts.insert(contact);
-    if (contactIsCharVsFG2(contact)){}
-        // charToFG2Contacts.insert(contact);
+void SearchScene::BeginContact(b2Contact* contact){
+    if (contactIsCharVsFG1(contact))
+        charToFG1Contacts.insert(contact);
+    if (contactIsCharVsFG2(contact))
+        charToFG2Contacts.insert(contact);
 }
 
-void EndContact(b2Contact* contact){
-    if (contactIsCharVsFG1(contact)){}
-        // charToFG1Contacts.erase(contact);
-    if (contactIsCharVsFG2(contact)){}
-        // charToFG2Contacts.erase(contact);
+void SearchScene::EndContact(b2Contact* contact){
+    if (contactIsCharVsFG1(contact))
+        charToFG1Contacts.erase(contact);
+    if (contactIsCharVsFG2(contact))
+        charToFG2Contacts.erase(contact);
 }
+
+// void SearchScene::ParticleBuilder(b2Vec2 worldPoint, float velocityA, float velocityB, float intensity){
+//     for (int i = 0; i < 40; i++){
+
+//     }
+// }
+
+// void SearchScene::GenerateParticles(std::set<b2Contact*> set){
+//     for (std::set<b2Contact*>::iterator it = set.begin(); it != set.end(); ++it) {
+//         b2Contact* contact = *it;
+//         if ( contact->GetManifold()->pointCount < 1 )
+//             continue;
+
+//         b2Fixture* fA = contact->GetFixtureA();
+//         b2Fixture* fB = contact->GetFixtureB();
+//         b2Body* bA = fA->GetBody();
+//         b2Body* bB = fB->GetBody();
+
+//         // get the contact point in world coordinates
+//         b2WorldManifold worldManifold;
+//         contact->GetWorldManifold(&worldManifold);
+//         b2Vec2 worldPoint = worldManifold.points[0];
+
+//         // find the relative speed of the fixtures at that point
+//         b2Vec2 velA = bA->GetLinearVelocityFromWorldPoint(worldPoint);
+//         b2Vec2 velB = bB->GetLinearVelocityFromWorldPoint(worldPoint);
+//         float relativeSpeed = (velA - velB).Length();
+
+//         // overall friction of contact
+//         float totalFriction = fA->GetFriction() * fB->GetFriction();
+
+//         // check if this speed and friction is enough to generate particles
+//         float intensity = relativeSpeed * totalFriction;
+//         if (intensity > 0.16)
+//             spawnParticle( worldPoint, velA, velB, intensity );
+//     }
+// }
 
 void SearchScene::updateWorld(){
     updatePlayerMovement();
